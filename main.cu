@@ -7,16 +7,16 @@
 #include <device_launch_parameters.h>
 #include "stb_image_write.h"
 
-__global__ void render(float* fb, int max_x, int max_y)
+#include "vec3.h"
+
+__global__ void render(vec3* fb, int max_x, int max_y)
 {
 	int i = threadIdx.x + blockIdx.x * blockDim.x;
 	int j = threadIdx.y + blockIdx.y * blockDim.y;
 
-	int pixel_index = j * max_x * 3 + i * 3;
+	int pixel_index = j * max_x + i;
 
-	fb[pixel_index + 0] = float(i) / max_x;
-	fb[pixel_index + 1] = float(j) / max_y;
-	fb[pixel_index + 2] = 0.2;
+	fb[pixel_index] = vec3(float(i) / max_x, float(j) / max_y, 0.2f);
 }
 
 int main()
@@ -27,9 +27,9 @@ int main()
 	int thread_y = 8;
 
 	int num_pixels = image_width * image_height;
-	size_t fb_size = 3 * num_pixels * sizeof(float);
+	size_t fb_size = num_pixels * sizeof(vec3);
 
-	float* fb;
+	vec3* fb;
 	cudaMallocManaged((void**)&fb, fb_size);
 
 	auto start = std::chrono::high_resolution_clock::now();
@@ -52,14 +52,11 @@ int main()
 	{
 		for (int i = 0; i < image_width; ++i)
 		{
-			size_t pixel_index = j * 3 * image_width + i * 3;
-			float r = fb[pixel_index + 0];
-			float g = fb[pixel_index + 1];
-			float b = fb[pixel_index + 2];
-
-			int ir = static_cast<int>(255.999 * r);
-			int ig = static_cast<int>(255.999 * g);
-			int ib = static_cast<int>(255.999 * b);
+			size_t pixel_index = j * image_width + i;
+			
+			int ir = static_cast<int>(255.999 * fb[pixel_index].r());
+			int ig = static_cast<int>(255.999 * fb[pixel_index].g());
+			int ib = static_cast<int>(255.999 * fb[pixel_index].b());
 
 			image_data.push_back(ir);
 			image_data.push_back(ig);

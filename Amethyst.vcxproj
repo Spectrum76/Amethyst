@@ -13,6 +13,9 @@
   <ItemGroup>
     <CudaCompile Include="main.cu" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="vec3.h" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{4D7BC910-47E3-4A4F-A284-B69334B40812}</ProjectGuid>
     <RootNamespace>Amethyst</RootNamespace>
